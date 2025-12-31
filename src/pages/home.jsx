@@ -9,6 +9,9 @@ function Home() {
   const [aramaKelimesi, setAramaKelimesi] = useState("")
   const [turler, setTurler] = useState([]) 
   const [seciliTur, setSeciliTur] = useState('') 
+  
+  // --- EKRAN GENİŞLİĞİNİ ÖLÇME ---
+  const [ekranGenisligi, setEkranGenisligi] = useState(window.innerWidth)
 
   const mevcutDil = localStorage.getItem('dil') || 'tr-TR'
   const metinler = {
@@ -18,6 +21,16 @@ function Home() {
 
   // --- API KEY ---
   const API_KEY = "74db544a5df45616a48fcb3c944e1314" 
+
+  // Ekran boyutu değişirse güncelle
+  useEffect(() => {
+    const handleResize = () => setEkranGenisligi(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Mobil mi? (768px'den küçükse mobildir)
+  const isMobile = ekranGenisligi < 768
 
   const cikisYap = () => {
     localStorage.removeItem('kullanici')
@@ -62,84 +75,66 @@ function Home() {
     filmleriGetir()
   }, [seciliTur, mevcutDil])
 
-  // --- GÜNCELLENMİŞ BUTON STİLİ ---
+  // --- STİLLER ---
   const butonStili = {
-    width: '160px',           
-    padding: '12px 15px',     // Biraz daha dolgun
+    width: isMobile ? '100%' : '160px', // Mobilde tam genişlik, PC'de sabit
+    padding: '12px 15px',
     backgroundColor: 'rgba(20, 20, 20, 0.8)', 
     border: '1px solid #444', 
     borderRadius: '8px',      
-    color: 'white',           // Tam beyaz yazı
-    fontSize: '14px',         // Yazı boyutu arttı
-    fontWeight: 'bold',       // KALIN YAZI EKLENDİ
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
     cursor: 'pointer',
     outline: 'none',
-    textAlign: 'center',      // Yazıyı ortaladık
+    textAlign: 'center',
     transition: 'all 0.3s ease', 
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center', // İçeriği tam ortala
-    letterSpacing: '1px'      // Harf aralığını biraz açtık, daha şık durur
+    justifyContent: 'center',
+    letterSpacing: '1px',
+    marginBottom: isMobile ? '10px' : '0' // Mobilde araları aç
   }
 
   return (
-    <div style={{ padding: '30px' }}>
+    <div style={{ padding: isMobile ? '15px' : '30px' }}>
       
       <header style={{ 
         position: 'relative', 
         display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'flex-start',
+        // MOBİLSE ALT ALTA, DEĞİLSE YAN YANA
+        flexDirection: isMobile ? 'column' : 'row', 
+        alignItems: 'center',
+        justifyContent: isMobile ? 'center' : 'space-between',
         marginBottom: '40px', 
-        height: '120px'
+        gap: isMobile ? '20px' : '0', // Mobilde elemanların arasını aç
+        height: isMobile ? 'auto' : '120px' // Mobilde yükseklik serbest
       }}>
         
-        {/* --- SOL BLOK --- */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
-          
-          {/* 1. DİL BUTONU (Logosuz, Kalın) */}
-          <button onClick={dilDegistir} style={butonStili} onMouseOver={(e) => e.target.style.borderColor = 'white'} onMouseOut={(e) => e.target.style.borderColor = '#444'}>
-            {mevcutDil === 'tr-TR' ? 'TÜRKÇE' : 'ENGLISH'}
-          </button>
-          
-          {/* 2. KATEGORİ SEÇİMİ (Logosuz, Kalın) */}
-          <select 
-            value={seciliTur} 
-            onChange={(e) => setSeciliTur(e.target.value)} 
-            style={{...butonStili, appearance: 'none', backgroundImage: 'none', textAlignLast: 'center'}} 
-          >
-            <option value="">{metinler[mevcutDil].hepsi}</option>
-            {turler.map(tur => <option key={tur.id} value={tur.id}>{tur.name}</option>)}
-          </select>
-
-          {/* 3. ÇIKIŞ BUTONU (Logosuz, Kalın) */}
-          <button onClick={cikisYap} style={{...butonStili, borderColor: '#e50914', color: '#ff4d4d'}} onMouseOver={(e) => e.target.style.backgroundColor = '#330000'} onMouseOut={(e) => e.target.style.backgroundColor = 'rgba(20, 20, 20, 0.8)'}>
-            {mevcutDil === 'tr-TR' ? 'ÇIKIŞ YAP' : 'LOGOUT'}
-          </button>
-
-        </div>
-
-        {/* --- ORTA BLOK: KARLI BAŞLIK --- */}
+        {/* --- ORTA BLOK: BAŞLIK (Mobilde En Üste Çıksın Diye Sırayı Değiştirdik) --- */}
+        {/* Mobilde 'order' kullanarak sırayı değiştiriyoruz */}
         <h1 
           onClick={() => { setSeciliTur(''); filmleriGetir(); }} 
           className="berkeflix-snow-title" 
           style={{ 
-            position: 'absolute', 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
+            position: isMobile ? 'static' : 'absolute', // Mobilde sabit dur, PC'de yüz
+            left: isMobile ? 'auto' : '50%', 
+            transform: isMobile ? 'none' : 'translateX(-50%)', 
             margin: 0, 
             cursor: 'pointer', 
-            fontSize: '60px', 
+            fontSize: isMobile ? '40px' : '60px', // Mobilde yazıyı küçült
             lineHeight: '1', 
             zIndex: 1,
-            top: '10px'
+            top: '10px',
+            textAlign: 'center',
+            order: isMobile ? 1 : 2 // Mobilde 1. sırada (En üstte)
           }}
         >
           {metinler[mevcutDil].baslik}
         </h1>
 
-        {/* --- SAĞ BLOK: ARAMA --- */}
-        <form onSubmit={filmAra} style={{ display: 'flex', gap: '10px', zIndex: 2 }}>
+        {/* --- SAĞ BLOK: ARAMA (Mobilde Ortaya) --- */}
+        <form onSubmit={filmAra} style={{ display: 'flex', gap: '10px', zIndex: 2, width: isMobile ? '100%' : 'auto', order: isMobile ? 2 : 3 }}>
           <input 
             type="text" 
             placeholder={metinler[mevcutDil].placeholder} 
@@ -152,7 +147,7 @@ function Home() {
               backgroundColor: 'rgba(0,0,0,0.5)', 
               color: 'white', 
               outline: 'none', 
-              width: '220px',
+              width: isMobile ? '100%' : '220px', // Mobilde tam boy
               backdropFilter: 'blur(5px)'
             }} 
           />
@@ -160,6 +155,29 @@ function Home() {
             {metinler[mevcutDil].araButon}
           </button>
         </form>
+
+        {/* --- SOL BLOK: BUTONLAR (Mobilde En Alta) --- */}
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '10px', zIndex: 2, width: isMobile ? '100%' : 'auto', flexWrap: 'wrap', justifyContent: 'center', order: isMobile ? 3 : 1 }}>
+          
+          <button onClick={dilDegistir} style={{...butonStili, flex: isMobile ? 1 : 'none'}}>
+            {mevcutDil === 'tr-TR' ? 'TÜRKÇE' : 'ENGLISH'}
+          </button>
+          
+          <select 
+            value={seciliTur} 
+            onChange={(e) => setSeciliTur(e.target.value)} 
+            style={{...butonStili, flex: isMobile ? 1 : 'none', appearance: 'none', backgroundImage: 'none', textAlignLast: 'center'}} 
+          >
+            <option value="">{metinler[mevcutDil].hepsi}</option>
+            {turler.map(tur => <option key={tur.id} value={tur.id}>{tur.name}</option>)}
+          </select>
+
+          {/* Mobilde çıkış butonu tam genişlik olsun */}
+          <button onClick={cikisYap} style={{...butonStili, width: isMobile ? '100%' : '160px', borderColor: '#e50914', color: '#ff4d4d'}}>
+            {mevcutDil === 'tr-TR' ? 'ÇIKIŞ YAP' : 'LOGOUT'}
+          </button>
+
+        </div>
 
       </header>
       
