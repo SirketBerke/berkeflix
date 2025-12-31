@@ -28,36 +28,6 @@ body {
 .rainbow-text {
   animation: renkDegisimi 3s linear infinite;
 } 
-
-/* 3. KAR EFEKTİ (ARKA PLAN İÇİN) */
-.kar-efekti {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Tıklamayı engelleme */
-  z-index: 9999;
-  
-  /* Basit beyaz noktalar çiziyoruz */
-  background-image: 
-    radial-gradient(white 2px, transparent 3px),
-    radial-gradient(white 1px, transparent 2px);
-    
-  /* Noktaların konumlarını rasgele dağıtıyoruz */
-  background-position: 0 0, 25px 25px;
-  background-size: 50px 50px; /* Desen boyutu */
-  
-  /* Aşağı doğru kaydır */
-  animation: karYagisi 2s linear infinite;
-  opacity: 0.7;
-}
-
-@keyframes karYagisi {
-  0% { background-position: 0 0, 25px 25px; }
-  100% { background-position: 0 50px, 25px 75px; }
-  
-}
 /* --- index.css EN ALTINA --- */
 
 /* Film Kartının Kendisi */
@@ -72,3 +42,39 @@ body {
   z-index: 10; /* Diğer kartların önüne geçsin */
   cursor: pointer; /* Fare işareti el olsun */
 }
+.berkeflix-snow-title {
+    /* Yazının kendisini şeffaf yapıyoruz */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  
+    /* Arka planı (kar animasyonunu) sadece harflerin içine hapsediyoruz */
+    background-clip: text;
+    -webkit-background-clip: text;
+  
+    /* Çift katmanlı kar görseli (Ön plan ve arka plan) */
+    /* Not: Bu linkler internetten çekilen şeffaf kar dokularıdır */
+    background-image: 
+      url('https://www.transparenttextures.com/patterns/snow.png'),
+      url('https://www.transparenttextures.com/patterns/snow.png');
+    
+    /* Kar tanelerinin boyutu (İlk katman büyük, ikinci küçük) */
+    background-size: 400px, 200px;
+  
+    /* Animasyonları tanımla (Farklı hızlarda) */
+    animation: snowTextScroll 15s linear infinite, snowTextScroll2 25s linear infinite;
+  
+    /* Yazının daha belirgin olması için hafif gölge */
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
+  }
+  
+  /* 1. Katman Kar Hareketi */
+  @keyframes snowTextScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 400px; } /* Aşağı doğru kaydır */
+  }
+  
+  /* 2. Katman Kar Hareketi (Daha yavaş ve çapraz) */
+  @keyframes snowTextScroll2 {
+    0% { background-position: 0 0; }
+    100% { background-position: 200px 400px; }
+  }

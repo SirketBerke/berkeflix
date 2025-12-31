@@ -12,11 +12,17 @@ function Home() {
 
   const mevcutDil = localStorage.getItem('dil') || 'tr-TR'
   const metinler = {
-    'tr-TR': { placeholder: 'Film ara...', araButon: 'ARA', baslik: 'BERKEFLIX', hepsi: 'Tüm Filmler' },
-    'en-US': { placeholder: 'Search movie...', araButon: 'SEARCH', baslik: 'BERKEFLIX', hepsi: 'All Movies' }
+    'tr-TR': { placeholder: 'Film ara...', araButon: 'ARA', baslik: 'BERKEFLIX', hepsi: 'TÜM TÜRLER' },
+    'en-US': { placeholder: 'Search movie...', araButon: 'SEARCH', baslik: 'BERKEFLIX', hepsi: 'ALL GENRES' }
   }
 
+  // --- API KEY ---
   const API_KEY = "74db544a5df45616a48fcb3c944e1314" 
+
+  const cikisYap = () => {
+    localStorage.removeItem('kullanici')
+    window.location.reload()
+  }
 
   const dilDegistir = () => {
     const yeniDil = mevcutDil === 'tr-TR' ? 'en-US' : 'tr-TR'
@@ -56,84 +62,101 @@ function Home() {
     filmleriGetir()
   }, [seciliTur, mevcutDil])
 
+  // --- GÜNCELLENMİŞ BUTON STİLİ ---
+  const butonStili = {
+    width: '160px',           
+    padding: '12px 15px',     // Biraz daha dolgun
+    backgroundColor: 'rgba(20, 20, 20, 0.8)', 
+    border: '1px solid #444', 
+    borderRadius: '8px',      
+    color: 'white',           // Tam beyaz yazı
+    fontSize: '14px',         // Yazı boyutu arttı
+    fontWeight: 'bold',       // KALIN YAZI EKLENDİ
+    cursor: 'pointer',
+    outline: 'none',
+    textAlign: 'center',      // Yazıyı ortaladık
+    transition: 'all 0.3s ease', 
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center', // İçeriği tam ortala
+    letterSpacing: '1px'      // Harf aralığını biraz açtık, daha şık durur
+  }
+
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '30px' }}>
       
       <header style={{ 
+        position: 'relative', 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'flex-end', 
-        marginBottom: '30px', 
-        borderBottom: '1px solid #333', 
-        paddingBottom: '20px' 
+        alignItems: 'flex-start',
+        marginBottom: '40px', 
+        height: '120px'
       }}>
         
-        {/* SOL BLOK */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {/* --- SOL BLOK --- */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 2 }}>
           
-          <h1 
-            onClick={() => { setSeciliTur(''); filmleriGetir(); }} 
-            className="rainbow-text" 
-            style={{ margin: 0, cursor: 'pointer', fontSize: '60px', lineHeight: '1' }}
+          {/* 1. DİL BUTONU (Logosuz, Kalın) */}
+          <button onClick={dilDegistir} style={butonStili} onMouseOver={(e) => e.target.style.borderColor = 'white'} onMouseOut={(e) => e.target.style.borderColor = '#444'}>
+            {mevcutDil === 'tr-TR' ? 'TÜRKÇE' : 'ENGLISH'}
+          </button>
+          
+          {/* 2. KATEGORİ SEÇİMİ (Logosuz, Kalın) */}
+          <select 
+            value={seciliTur} 
+            onChange={(e) => setSeciliTur(e.target.value)} 
+            style={{...butonStili, appearance: 'none', backgroundImage: 'none', textAlignLast: 'center'}} 
           >
-            {metinler[mevcutDil].baslik}
-          </h1>
+            <option value="">{metinler[mevcutDil].hepsi}</option>
+            {turler.map(tur => <option key={tur.id} value={tur.id}>{tur.name}</option>)}
+          </select>
 
-          {/* KONTROLLER (Dil ve Kategori) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            
-            {/* 1. DİL BUTONU */}
-            <button 
-              onClick={dilDegistir}
-              style={{ 
-                width: '160px', // SABİT GENİŞLİK (Kategoriyle aynı)
-                padding: '10px', 
-                background: '#222', 
-                border: '1px solid #444', 
-                color: 'white', 
-                cursor: 'pointer', 
-                borderRadius: '5px', 
-                fontSize: '14px',
-                textAlign: 'left' // Yazıyı sola hizaladık
-              }}
-            >
-              {mevcutDil === 'tr-TR' ? '🌍 DİL: TÜRKÇE' : '🌍 LANG: ENGLISH'}
-            </button>
+          {/* 3. ÇIKIŞ BUTONU (Logosuz, Kalın) */}
+          <button onClick={cikisYap} style={{...butonStili, borderColor: '#e50914', color: '#ff4d4d'}} onMouseOver={(e) => e.target.style.backgroundColor = '#330000'} onMouseOut={(e) => e.target.style.backgroundColor = 'rgba(20, 20, 20, 0.8)'}>
+            {mevcutDil === 'tr-TR' ? 'ÇIKIŞ YAP' : 'LOGOUT'}
+          </button>
 
-            {/* 2. KATEGORİ SEÇİMİ */}
-            <select 
-              value={seciliTur} 
-              onChange={(e) => setSeciliTur(e.target.value)}
-              style={{ 
-                width: '160px', // SABİT GENİŞLİK (Butonla aynı)
-                padding: '10px', 
-                background: '#222', // Renkler aynı
-                border: '1px solid #444', 
-                borderRadius: '5px', 
-                color: 'white', 
-                fontSize: '14px', 
-                cursor: 'pointer' 
-              }}
-            >
-              <option value="">{metinler[mevcutDil].hepsi}</option>
-              {turler.map(tur => (
-                <option key={tur.id} value={tur.id}>{tur.name}</option>
-              ))}
-            </select>
-
-          </div>
         </div>
 
-        {/* SAĞ BLOK (Arama) */}
-        <form onSubmit={filmAra} style={{ display: 'flex', gap: '10px', paddingBottom: '10px' }}>
+        {/* --- ORTA BLOK: KARLI BAŞLIK --- */}
+        <h1 
+          onClick={() => { setSeciliTur(''); filmleriGetir(); }} 
+          className="berkeflix-snow-title" 
+          style={{ 
+            position: 'absolute', 
+            left: '50%', 
+            transform: 'translateX(-50%)', 
+            margin: 0, 
+            cursor: 'pointer', 
+            fontSize: '60px', 
+            lineHeight: '1', 
+            zIndex: 1,
+            top: '10px'
+          }}
+        >
+          {metinler[mevcutDil].baslik}
+        </h1>
+
+        {/* --- SAĞ BLOK: ARAMA --- */}
+        <form onSubmit={filmAra} style={{ display: 'flex', gap: '10px', zIndex: 2 }}>
           <input 
             type="text" 
             placeholder={metinler[mevcutDil].placeholder} 
-            value={aramaKelimesi}
-            onChange={(e) => setAramaKelimesi(e.target.value)}
-            style={{ padding: '12px', borderRadius: '5px', border: 'none', outline: 'none', width: '250px' }}
+            value={aramaKelimesi} 
+            onChange={(e) => setAramaKelimesi(e.target.value)} 
+            style={{ 
+              padding: '12px 20px', 
+              borderRadius: '25px',
+              border: '1px solid #444', 
+              backgroundColor: 'rgba(0,0,0,0.5)', 
+              color: 'white', 
+              outline: 'none', 
+              width: '220px',
+              backdropFilter: 'blur(5px)'
+            }} 
           />
-          <button type="submit" style={{ padding: '12px 25px', backgroundColor: '#e50914', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button type="submit" style={{ padding: '12px 25px', backgroundColor: '#e50914', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' }}>
             {metinler[mevcutDil].araButon}
           </button>
         </form>
